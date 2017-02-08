@@ -1,0 +1,14 @@
+Symbol range map extraction starting
+Processing 12 files
+processing basashi\excblock\client\ClientProxy.java
+processing basashi\excblock\client\config\CycleIntegerEntry.java
+processing basashi\excblock\client\config\ExBlockConfigGui.java
+processing basashi\excblock\client\config\ExBlockGuiFactory.java
+processing basashi\excblock\core\CommonProxy.java
+processing basashi\excblock\core\Config.java
+processing basashi\excblock\core\ExchangeBlock.java
+processing basashi\excblock\core\ExchangeLayer.java
+processing basashi\excblock\core\ModCommon.java
+processing basashi\excblock\core\log\ModLog.java
+processing basashi\excblock\events\ExBlockAPI.java
+processing basashi\excblock\events\ExBlockEventHooks.java
