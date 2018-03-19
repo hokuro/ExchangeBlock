@@ -11,7 +11,6 @@ import basashi.excblock.core.Config;
 import basashi.excblock.core.ExchangeLayer;
 import basashi.excblock.core.ModCommon;
 import basashi.excblock.core.log.ModLog;
-import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
@@ -100,7 +99,7 @@ public class ExBlockEventHooks {
 
 		// チャンクの情報を取得
 		Chunk chunk = event.getChunk();
-		long chunkSeed = ChunkCoordIntPair.chunkXZ2Int(chunk.xPosition, chunk.zPosition) ^ world.provider.getDimension();
+		long chunkSeed = chunkXZ2Int(chunk.x, chunk.z) ^ world.provider.getDimension();
 
 		if(chunk.isLoaded() && (!Config.useLayerdCache() || !exchangeChunk.contains(chunkSeed))){
 			for ( ExchangeLayer entry : exchangeSet){
@@ -138,6 +137,12 @@ public class ExBlockEventHooks {
 //			}
 //		}
 //	}
+
+
+	public static long chunkXZ2Int(int x, int z)
+	{
+	   return (long)x & 4294967295L | ((long)z & 4294967295L) << 32;
+	}
 
 	/**
 	 * 構造物生成イベント

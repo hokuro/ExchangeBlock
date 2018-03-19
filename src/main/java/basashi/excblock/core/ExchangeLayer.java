@@ -100,6 +100,10 @@ public class ExchangeLayer {
 
 				// ブロックを取得
 				Block blk = Block.getBlockFromName(blocks[0]);
+				if (blk == null){
+					ModLog.log().error("block not found:" + blocks[i]);
+					continue;
+				}
 				int meta =0;
 				try{
 					// メタデータを数値化
@@ -111,7 +115,12 @@ public class ExchangeLayer {
 				}
 				targetBlock[i] = blk.getStateFromMeta(meta);
 			}else{
-				targetBlock[i] = Block.getBlockFromName(blocks[i]).getDefaultState();
+				Block w =  Block.getBlockFromName(blocks[i]);
+				if (w == null){
+					ModLog.log().error("block not found:" + blocks[i]);
+					continue;
+				}
+				targetBlock[i] = w.getDefaultState();
 			}
 			ModLog.log().debug("target brock[" +i+"] = " + targetBlock[i].getBlock().getRegistryName());
 		}
@@ -132,6 +141,10 @@ public class ExchangeLayer {
 
 				// ブロックを取得
 				Block blk = Block.getBlockFromName(blocks[0]);
+				if (blk == null){
+					ModLog.log().error("block not found:" + blocks[i]);
+					continue;
+				}
 				int meta =0;
 				try{
 					// メタデータを数値化
@@ -143,7 +156,12 @@ public class ExchangeLayer {
 				}
 				afterBlock[i] = blk.getStateFromMeta(meta);
 			}else{
-				afterBlock[i] = Block.getBlockFromName(blocks[i]).getDefaultState();
+				Block w =  Block.getBlockFromName(blocks[i]);
+				if (w == null){
+					ModLog.log().error("block not found:" + blocks[i]);
+					continue;
+				}
+				afterBlock[i] = w.getDefaultState();
 			}
 			ModLog.log().debug("brock[" +i+"] = " + afterBlock[i].getBlock().getRegistryName());
 		}
@@ -250,9 +268,18 @@ public class ExchangeLayer {
 										if (!exec){
 											continue;
 										}
-										int val = rnd.nextInt(bound);
+										bound =strage.getYLocation()+1;
+
+										int val = rnd.nextInt(Math.abs(bound));
 										for ( int rcnt = 0; rcnt < blockRate.length; rcnt++){
-											if (blockRate[rcnt] > val){
+											if (blockRate.length-1 == rcnt){
+												try{
+													strage.set(x,y,z,afterBlock[rcnt]);
+												}catch(Exception ex){
+												}
+												break;
+											}
+											else if (blockRate[rcnt] >= val){
 												try{
 													strage.set(x,y,z,afterBlock[rcnt]);
 												}catch(Exception ex){

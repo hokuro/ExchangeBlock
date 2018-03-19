@@ -17,11 +17,11 @@ public class ExBlockGuiFactory implements IModGuiFactory {
 
 	}
 
-	@Override
-	public Class<? extends GuiScreen> mainConfigGuiClass() {
-		// TODO 自動生成されたメソッド・スタブ
-		return ExBlockConfigGui.class;
-	}
+//	@Override
+//	public Class<? extends GuiScreen> mainConfigGuiClass() {
+//		// TODO 自動生成されたメソッド・スタブ
+//		return ExBlockConfigGui.class;
+//	}
 
 	@Override
 	public Set<RuntimeOptionCategoryElement> runtimeGuiCategories() {
@@ -29,8 +29,20 @@ public class ExBlockGuiFactory implements IModGuiFactory {
 		return null;
 	}
 
+//	@Override
+//	public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element) {
+//		// TODO 自動生成されたメソッド・スタブ
+//		return null;
+//	}
+
 	@Override
-	public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element) {
+	public boolean hasConfigGui() {
+		// TODO 自動生成されたメソッド・スタブ
+		return false;
+	}
+
+	@Override
+	public GuiScreen createConfigGui(GuiScreen parentScreen) {
 		// TODO 自動生成されたメソッド・スタブ
 		return null;
 	}

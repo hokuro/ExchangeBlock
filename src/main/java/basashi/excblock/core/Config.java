@@ -111,7 +111,7 @@ public class Config {
 		prop = config.get(category,  ModCommon.MOD_CONFIG_GENELAL_FLATTENTYPE,  0);
 		prop.setComment(" [range:" +prop.getMinValue() + "~" + prop.getMaxValue() + ", default:" + prop.getDefault()+"]");
 		propOrder.add(prop.getName());
-		flattenType = MathHelper.clamp_int(prop.getInt(flattenType),Integer.parseInt(prop.getMinValue()), Integer.parseInt(prop.getMaxValue()));
+		flattenType = MathHelper.clamp(prop.getInt(flattenType),Integer.parseInt(prop.getMinValue()), Integer.parseInt(prop.getMaxValue()));
 		if(flattenType < 0 == flattenType > 1)
 		{
 			flattenType = 0;
