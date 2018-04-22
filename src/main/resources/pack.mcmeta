@@ -1,6 +1,6 @@
 {
     "pack": {
-        "pack_format": 2,
-        "description":" ExchangeBlock resource"
+        "pack_format": 3,
+        "description": "ExchangeBlock resource"
     }
 }
