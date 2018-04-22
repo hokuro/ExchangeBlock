@@ -15,7 +15,10 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkCheckHandler;
 import net.minecraftforge.fml.relauncher.Side;
 
-@Mod(modid = ModCommon.MOD_ID, guiFactory = ModCommon.MOD_PACKAGE+ModCommon.MOD_FACTRY)
+@Mod(modid = ModCommon.MOD_ID,
+name = ModCommon.MOD_NAME,
+version = ModCommon.MOD_VERSION,
+acceptedMinecraftVersions = ModCommon.MOD_ACCEPTED_MC_VERSIONS)
 public class ExchangeBlock {
 	@SidedProxy(modId = ModCommon.MOD_ID, clientSide = ModCommon.MOD_PACKAGE+ModCommon.MOD_CLIENT_SIDE, serverSide=ModCommon.MOD_PACKAGE + ModCommon.MOD_SERVER_SIDE)
 	public static CommonProxy proxy;
