@@ -11,7 +11,9 @@ public final class ModCommon {
     public static final String MOD_PACKAGE = "basashi.excblock";
     public static final String MOD_CLIENT_SIDE = ".client.ClientProxy";
     public static final String MOD_SERVER_SIDE = ".core.CommonProxy";
-    public static final String MOD_FACTRY = ".client.config.ExBlockGuiFactory";c
+    public static final String MOD_FACTRY = ".client.config.ExBlockGuiFactory";
+
+    public static final String MOD_ACCEPTED_MC_VERSIONS = "[1.12]";
     // モッドバージョン
     public static final String MOD_VERSION = "1.12.0";
     // コンフィグファイル名
