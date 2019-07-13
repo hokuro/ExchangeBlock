@@ -1,0 +1,32 @@
+modLoader="javafml" #mandatory
+loaderVersion="[25,)" #mandatory (24 is current forge version)
+issueTrackerURL="http://excblock" #optional
+[[mods]] #mandatory
+modId="excblock" #mandatory
+version="${file.jarVersion}" #mandatory
+displayName="excblocks" #mandatory
+updateJSONURL="http://excblock" #optional
+displayURL="http://excblock" #optional
+logoFile="havestall.png" #optional
+credits="excblocks Mod" #optional
+authors="excblocks" #optional
+description="Add Block make of meet"
+# A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
+[[dependencies.excblock]] #optional
+    # the modid of the dependency
+    modId="forge" #mandatory
+    # Does this dependency have to exist - if not, ordering below must be specified
+    mandatory=true #mandatory
+    # The version range of the dependency
+    versionRange="[25,)" #mandatory
+    # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
+    ordering="NONE"
+    # Side this dependency is applied on - BOTH, CLIENT or SERVER
+    side="BOTH"
+# Here's another dependency
+[[dependencies.excblock]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.13.2]"
+    ordering="NONE"
+    side="BOTH"

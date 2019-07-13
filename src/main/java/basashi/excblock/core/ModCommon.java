@@ -5,13 +5,13 @@ public final class ModCommon {
 	public static boolean isDebug = false;
 
 	// モッドID
-    public static final String MOD_ID = "exchangeblock";
+    public static final String MOD_ID = "excblock";
     // モッド名
     public static final String MOD_NAME = "ExchageBock";
     public static final String MOD_PACKAGE = "basashi.excblock";
     public static final String MOD_CLIENT_SIDE = ".client.ClientProxy";
     public static final String MOD_SERVER_SIDE = ".core.CommonProxy";
-    public static final String MOD_FACTRY = ".client.config.ExBlockGuiFactory";c
+    public static final String MOD_FACTRY = ".client.config.ExBlockGuiFactory";
     // モッドバージョン
     public static final String MOD_VERSION = "1.12.0";
     // コンフィグファイル名

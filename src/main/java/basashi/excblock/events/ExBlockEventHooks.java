@@ -8,18 +8,20 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 
 import basashi.excblock.core.Config;
+import basashi.excblock.core.Config.LayerInfo;
 import basashi.excblock.core.ExchangeLayer;
 import basashi.excblock.core.ModCommon;
 import basashi.excblock.core.log.ModLog;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.event.terraingen.PopulateChunkEvent;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.chunk.IChunk;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.world.ChunkEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 
 /**
  * @author as
@@ -71,17 +73,22 @@ public class ExBlockEventHooks {
 		exchangeSet.add(entry);
 	}
 
+	@SubscribeEvent
+	public void onServerStarting(FMLServerStartingEvent event){
+		Config.GENERAL.init();
+	}
+
 	/**
 	 * コンフィグ更新
 	 * @param even イベント情報t
 	 */
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	@SubscribeEvent
 	public void onConfigChanged(OnConfigChangedEvent event){
 		// コンフィグに変化があった場合再読み込み
 		if(event.getModID().equals(ModCommon.MOD_ID)){
 			ModLog.log().debug("call onConfigChanged");
-			Config.syncConfig();
+			Config.GENERAL.init();
 		}
 	}
 
@@ -91,22 +98,20 @@ public class ExBlockEventHooks {
 	 */
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onChunkLoad(ChunkEvent.Load event){
-		World world = event.getWorld();
-		if (world.isRemote || Config.flattenType() != 0){
+		Config.GENERAL.makeinfo();
+		IWorld world = event.getWorld();
+		if (world.getWorld().isRemote || !Config.flattenType()){
 			// ブロック交換なし
 			return;
 		}
 
 		// チャンクの情報を取得
-		Chunk chunk = event.getChunk();
-		long chunkSeed = chunkXZ2Int(chunk.x, chunk.z) ^ world.provider.getDimension();
+		IChunk chunk = event.getChunk();
+		long chunkSeed = chunkXZ2Int(chunk.getPos().x, chunk.getPos().z) ^ world.getDimension().getType().getId();
 
-		if(chunk.isLoaded() && (!Config.useLayerdCache() || !exchangeChunk.contains(chunkSeed))){
-			for ( ExchangeLayer entry : exchangeSet){
-				if (entry.isEnable()){
-					// ブロック入れ替え
-					entry.ExecExchange(chunk);
-				}
+		if( !Config.useLayerdCache() || !exchangeChunk.contains(chunkSeed)){
+			for ( LayerInfo entry : Config.GENERAL.getInfoList()){
+				entry.ExecExchange(chunk);
 			}
 
 			if (Config.useLayerdCache()){
@@ -148,22 +153,28 @@ public class ExBlockEventHooks {
 	 * 構造物生成イベント
 	 * @param event
 	 */
-	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public void onPostPopulateChunk(PopulateChunkEvent.Populate event){
-		World world = event.getWorld();
+//	@SubscribeEvent(priority = EventPriority.HIGHEST)
+//	public void onPostPopulateChunk(PopulateChunkEvent.Populate event){
+//		World world = event.getWorld();
+//
+//		if(world.isRemote || Config.flattenType() != 1){
+//			return;
+//		}
+//
+//		Chunk chunk = world.getChunkFromChunkCoords(event.getChunkX(),event.getChunkZ());
+//		if (chunk.isLoaded()){
+//			for(ExchangeLayer entry : exchangeSet){
+//				if (entry.isEnable()){
+//					entry.ExecExchange(chunk);
+//				}
+//			}
+//		}
+//	}
 
-		if(world.isRemote || Config.flattenType() != 1){
-			return;
-		}
 
-		Chunk chunk = world.getChunkFromChunkCoords(event.getChunkX(),event.getChunkZ());
-		if (chunk.isLoaded()){
-			for(ExchangeLayer entry : exchangeSet){
-				if (entry.isEnable()){
-					entry.ExecExchange(chunk);
-				}
-			}
-		}
+	@SubscribeEvent
+	public void tickEventServer(TickEvent.ServerTickEvent event) {
+
 	}
 }
 

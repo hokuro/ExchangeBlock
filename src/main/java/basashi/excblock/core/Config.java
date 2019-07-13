@@ -1,145 +1,183 @@
 package basashi.excblock.core;
-import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
-import com.google.common.collect.Lists;
-
-import basashi.excblock.core.log.ModLog;
-import basashi.excblock.events.ExBlockAPI;
-import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
-import net.minecraftforge.fml.client.config.GuiConfigEntries.IConfigEntry;
-import net.minecraftforge.fml.common.Loader;
+import net.minecraft.block.Block;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.registry.IRegistry;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.chunk.IChunk;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public class Config {
-	// コンフィグ
-	private static Configuration config = null;
-	// フラットタイプ
-	private static int flattenType;
-	// レイヤーキャッシュ
-	private static boolean useLayerdCache;
-	// レイヤー配列
-	private static String[] layers;
-	// コンフィグ
-	private static Class<? extends IConfigEntry> cycleInteger;
 
-	/**
-	 * flattenTypを取得する
-	 * @return flattenType
-	 */
-	public static int flattenType(){
-		return flattenType;
+	private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+	public static final General GENERAL = new General(BUILDER);
+	public static final ForgeConfigSpec spec = BUILDER.build();
+	private static int p_DefaultValue;
+	private static boolean p_init = false;
+
+
+	public static Boolean flattenType() {
+		return GENERAL.toFlat.get();
 	}
 
-	/**
-	 * コンフィグ情報を返す
-	 * @return コンフィグ情報
-	 */
-	public static Configuration config(){
-		if(config == null){syncConfig();}
-		return config;
+	public static boolean useLayerdCache() {
+		return GENERAL.useLayerdCache.get();
 	}
 
-	/**
-	 * cycleIntegerを取得
-	 * @return
-	 */
-	public static Class<? extends IConfigEntry> cycleInteger(){
-		return cycleInteger;
-	}
+	public static class General{
+		public final ForgeConfigSpec.ConfigValue<Boolean> toFlat;
+		public final ForgeConfigSpec.ConfigValue<Boolean> useLayerdCache;
+		public final ForgeConfigSpec.ConfigValue<String> layer;
+		public final ForgeConfigSpec.ConfigValue<String> layerBlock;
 
-	/**
-	 * cycleIntegerを設定
-	 * @param value
-	 * @return
-	 */
-	public static Class<? extends IConfigEntry> cycleInteger(Class<? extends IConfigEntry> value){
-		cycleInteger = value;
-		return cycleInteger;
-	}
+		public General(ForgeConfigSpec.Builder builder){
+			builder.push("General");
+			toFlat = builder
+					.comment("default:true")
+					.define("toFlat",true);
 
-	/**
-	 * useLayerdCacheを取得する
-	 * @return useLayerdChache
-	 */
-	public static boolean useLayerdCache(){
-		return useLayerdCache;
-	}
+			useLayerdCache = builder
+					.comment("default: true")
+					.define("useLayerdCache",true);
+			layer = builder
+					.comment("layer exchangeblock dimension.start.ent,dimension2.start2:end2 ...")
+					.define("layer","0.1.5,1.1.5,1.120.126");
+			layerBlock = builder
+					.comment("exchangeBlock before1.after1,before2,after2")
+					.define("layerBlock","minecraft:bedrock.minecraft:stone,minecraft:bedrock.minecraft:stone,minecraft:bedrock.minecraft:stone");
+			builder.pop();
+		}
 
-	// コンフィグファイル初期化
-	public static void syncConfig()
-	{
-		if (config == null){
-			// 読み込むコンフィグファイルをしてい
-			File file = new File(Loader.instance().getConfigDir(),ModCommon.MOD_CONFIG_FILE);
-			config = new Configuration(file);
-			try{
-				// コンフィグファイル読み込み
-				config.load();
-			}catch(Exception e){
-				// ファイル読み込みに失敗した場合、bakファイルを作成
-				File dest = new File(file.getParentFile(),file.getName()+"bak");
-				if (dest.exists()){
-					dest.delete();
+		private List<LayerInfo> lyaerList = new ArrayList<LayerInfo>();
+		private boolean initialize = false;
+
+		public void init(){
+			initialize = false;
+			makeinfo();
+
+		}
+
+		public void makeinfo (){
+			if (initialize){return;}
+			lyaerList.clear();
+			String[] number = layer.get().split(",");
+			String[] blk = layerBlock.get().split(",");
+
+			for (int i = 0; i < number.length; i++){
+				if (blk.length > i){
+					String[] sted = number[i].split(Pattern.quote("."));
+					String[] bfaf = blk[i].split(Pattern.quote("."));
+					if (sted.length == 3 || bfaf.length == 2){
+						try{
+							LayerInfo inf = new LayerInfo(new Integer(sted[0]).intValue(),
+														  new Integer(sted[1]).intValue(),
+														  new Integer(sted[2]).intValue(),
+													      bfaf[0],
+													      bfaf[1]);
+							lyaerList.add(inf);
+						}catch(Throwable e){
+						}
+					}
 				}
-				file.renameTo(dest);
-				ModLog.log().error("error reading config("+file.getName()+")");
 			}
+			initialize = true;
 		}
 
-		// コンフィグファイル generalカテゴリ読み込み
-		String category = ModCommon.MOD_CONFIG_CAT_DEBUG;
-		Property prop;
-
-		// デバッグモード読み込み
-		prop = config.get(category, ModCommon.MOD_CONFIG_DEBUG_DEBUG, false);
-		ModCommon.isDebug = prop.getBoolean();
-		if (!ModCommon.isDebug){
-			config.removeCategory(config.getCategory(category));
-			ModLog.log().info("isRelease");
-		}
-		ModLog.log().info("idDebug value = " + prop.getBoolean());
-		ModLog.log().debug("debug value ="+ prop.getBoolean());
-
-
-		// コンフィグファイル generalカテゴリ読み込み
-		category = Configuration.CATEGORY_GENERAL;
-		List<String> propOrder = Lists.newArrayList();
-
-		// flattenType読み込み
-		prop = config.get(category,  ModCommon.MOD_CONFIG_GENELAL_FLATTENTYPE,  0);
-		prop.setComment(" [range:" +prop.getMinValue() + "~" + prop.getMaxValue() + ", default:" + prop.getDefault()+"]");
-		propOrder.add(prop.getName());
-		flattenType = MathHelper.clamp(prop.getInt(flattenType),Integer.parseInt(prop.getMinValue()), Integer.parseInt(prop.getMaxValue()));
-		if(flattenType < 0 == flattenType > 1)
-		{
-			flattenType = 0;
-			prop.set(flattenType);;
-		}
-		ModLog.log().debug("debug value="+prop.getInt());
-
-		// useLayerdCache読み込み
-		prop = config.get(category, ModCommon.MOD_CONFIG_GENELAL_USELAYERDCACHE,true);
-		prop.setComment(" [default: " + prop.getDefault() + "]");
-		propOrder.add(prop.getName());
-		useLayerdCache = prop.getBoolean(useLayerdCache);
-		ModLog.log().debug("useLayerdCache value=" + prop.getBoolean());
-
-		// layers 読み込み
-		prop = config.get(category, ModCommon.MOD_CONFIG_GELELAL_LAYERS, new String[]{"overworld","netherLower","netherUpper"});
-		prop.setComment("[default:" + prop.getDefault() + "]");
-		propOrder.add(prop.getName());
-		layers = prop.getStringList();
-		ExBlockAPI.instance.unregistExBlock();
-		for (String layercat : prop.getStringList()){
-			ModLog.log().debug("useLayerdCache value=" + layercat);
-			ExBlockAPI.instance.registExBlock(layercat);
-		}
-		config.setCategoryPropertyOrder(category,  propOrder);
-
-		if (config.hasChanged()){
-			config.save();
+		public List<LayerInfo> getInfoList(){
+			return lyaerList;
 		}
 	}
+
+	public static class LayerInfo{
+		private int dimension;
+		private int start;
+		private int end;
+		private Block before;
+		private Block after;
+
+		public LayerInfo(int d, int s, int e, String b, String a){
+			dimension = d;
+			if (s < e){
+				start = s;
+				end = e;
+			}else{
+				start = e;
+				end = s;
+			}
+			before = IRegistry.field_212618_g.func_212608_b(new ResourceLocation(b));
+			after = IRegistry.field_212618_g.func_212608_b(new ResourceLocation(a));
+		}
+		public int getStart(){return start;}
+		public int getEnd(){return end;}
+		public Block getBefore(){return before;}
+		public Block getAfter(){return after;}
+
+
+		public boolean ExecExchange(final IChunk chunk)
+		{
+			World world = chunk.getWorldForge().getWorld();
+			if (world.getDimension().getType().getId() != dimension)
+			{
+				return false;
+			}
+
+			if (world instanceof WorldServer)
+			{
+				((WorldServer)world).addScheduledTask(
+					new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							ChunkPos cpos = chunk.getPos();
+							for ( int stcnt =0; stcnt < chunk.getSections().length; stcnt++)
+							{
+								if ( (stcnt*16+15) < end || (stcnt*16) > start){continue;}
+								ChunkSection section = chunk.getSections()[stcnt];
+								if ( !section.isEmpty()){
+									// yロケーションが範囲外の場合コンティニュー
+									int location = section.getYLocation();
+									if ( (location+15 < start) || (location > end)){continue;}
+
+									int starty = ((start-location) < 0)?0:(start-location);
+									int ency = ((end-location) < 16)?(end-location):16;
+
+
+									for (int x = 0; x < 16; x++){
+										for (int z = 0; z < 16; z++){
+											for ( int y = starty; y < 16; ++y){
+												if ( !((location + y) >= start && (location +y) <= end)){
+													continue;
+												}
+
+												if (section.get(x, y, z).getBlock() == before){
+													BlockPos bpos = new BlockPos(cpos.getXStart()+x, stcnt*16+y,cpos.getZStart()+z);
+													section.set(x, y, z, after.getDefaultState());
+													//world.setBlockState(bpos, after.getDefaultState());
+												}
+											}
+										}
+									}
+								}
+							}
+							((net.minecraft.world.chunk.Chunk) chunk).markDirty();
+						}
+					});
+			}
+			return true;
+		}
+	}
+
+
+
+
+
+
 }
