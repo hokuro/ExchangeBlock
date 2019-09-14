@@ -4,14 +4,15 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.registry.IRegistry;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public class Config {
@@ -24,7 +25,10 @@ public class Config {
 
 
 	public static Boolean flattenType() {
-		return GENERAL.toFlat.get();
+		if (GENERAL.toFlat != null) {
+			return GENERAL.toFlat.get();
+		}
+		return false;
 	}
 
 	public static boolean useLayerdCache() {
@@ -48,10 +52,10 @@ public class Config {
 					.define("useLayerdCache",true);
 			layer = builder
 					.comment("layer exchangeblock dimension.start.ent,dimension2.start2:end2 ...")
-					.define("layer","0.1.5,1.1.5,1.120.126");
+					.define("layer","0.1.5,-1.1.5,-1.120.126");
 			layerBlock = builder
 					.comment("exchangeBlock before1.after1,before2,after2")
-					.define("layerBlock","minecraft:bedrock.minecraft:stone,minecraft:bedrock.minecraft:stone,minecraft:bedrock.minecraft:stone");
+					.define("layerBlock","minecraft:bedrock.minecraft:stone,minecraft:bedrock.minecraft:netherrack,minecraft:bedrock.minecraft:netherrack");
 			builder.pop();
 		}
 
@@ -111,8 +115,8 @@ public class Config {
 				start = e;
 				end = s;
 			}
-			before = IRegistry.field_212618_g.func_212608_b(new ResourceLocation(b));
-			after = IRegistry.field_212618_g.func_212608_b(new ResourceLocation(a));
+			before = Registry.BLOCK.getValue(new ResourceLocation(b)).get();
+			after = Registry.BLOCK.getValue(new ResourceLocation(a)).get();
 		}
 		public int getStart(){return start;}
 		public int getEnd(){return end;}
@@ -128,9 +132,9 @@ public class Config {
 				return false;
 			}
 
-			if (world instanceof WorldServer)
+			if (world instanceof ServerWorld)
 			{
-				((WorldServer)world).addScheduledTask(
+				Minecraft.getInstance().execute(
 					new Runnable()
 					{
 						@Override
@@ -157,9 +161,9 @@ public class Config {
 													continue;
 												}
 
-												if (section.get(x, y, z).getBlock() == before){
+												if (section.getBlockState(x, y, z).getBlock() == before){
 													BlockPos bpos = new BlockPos(cpos.getXStart()+x, stcnt*16+y,cpos.getZStart()+z);
-													section.set(x, y, z, after.getDefaultState());
+													section.setBlockState(x, y, z, after.getDefaultState());
 													//world.setBlockState(bpos, after.getDefaultState());
 												}
 											}

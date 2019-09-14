@@ -12,11 +12,11 @@ public class ExchangeLayer {
 //	// 最大の高さ
 //	private int maxHeight;
 //	// 交換後ブロック
-//	private IBlockState[] afterBlock;
+//	private BlockState[] afterBlock;
 //	// レート
 //	private int[] blockRate;
 //	// 交換対象ブロック
-//	private IBlockState[] targetBlock;
+//	private BlockState[] targetBlock;
 //
 //
 //	// 乱数ジェネレータ
@@ -74,7 +74,7 @@ public class ExchangeLayer {
 //		prop = config.get(categoryName, ModCommon.MOD_CONFIG_LAYER_TARGET,new String[0]);
 //		prop.setComment("[default:" + prop.getDefault() + "]");
 //		String[] blocks = prop.getStringList();
-//		this.targetBlock = new IBlockState[blocks.length];
+//		this.targetBlock = new BlockState[blocks.length];
 //		ModLog.log().debug("targets num = " + targetBlock.length);
 //		for ( int i = 0; i < blocks.length; i++){
 //			ModLog.log().debug("brock name = " + blocks[i]);
@@ -115,7 +115,7 @@ public class ExchangeLayer {
 //		prop = config.get(categoryName, ModCommon.MOD_CONFIG_LAYER_BLOCKS,new String[0]);
 //		prop.setComment("[default:" + prop.getDefault() + "]");
 //		blocks = prop.getStringList();
-//		this.afterBlock = new IBlockState[blocks.length];
+//		this.afterBlock = new BlockState[blocks.length];
 //		ModLog.log().debug("afterBlock num = " + afterBlock.length);
 //		for ( int i = 0; i < blocks.length; i++){
 //			ModLog.log().debug("brock name = " + blocks[i]);

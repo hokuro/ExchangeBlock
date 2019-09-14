@@ -16,11 +16,11 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 
 /**
@@ -100,6 +100,7 @@ public class ExBlockEventHooks {
 	public void onChunkLoad(ChunkEvent.Load event){
 		Config.GENERAL.makeinfo();
 		IWorld world = event.getWorld();
+		if (world == null) {return;}
 		if (world.getWorld().isRemote || !Config.flattenType()){
 			// ブロック交換なし
 			return;
